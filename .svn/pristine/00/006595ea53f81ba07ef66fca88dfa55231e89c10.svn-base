@@ -1,0 +1,292 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.Services;
+
+namespace SMTWebService
+{
+    /// <summary>
+    /// Summary description for SMT
+    /// </summary>
+    [WebService(Namespace = "http://delcio-pc/")]
+    [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
+    [System.ComponentModel.ToolboxItem(false)]
+    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
+    // [System.Web.Script.Services.ScriptService]
+    public class SMT : System.Web.Services.WebService
+    {
+        public enum queryTimeOption
+        {
+            Past,
+            Present,
+            Future,
+            All
+        }
+
+        #region "Events"
+        [WebMethod]
+        public EventList listEvents(queryTimeOption eventOption)
+        {
+            // Database connection objects
+            String connectionString = "Password=sa;Persist Security Info=True;User ID=sa;Initial Catalog=SMT;Data Source=delcio-pc";
+            String query = String.Empty;
+            SqlConnection conn = new SqlConnection(connectionString);
+            SqlCommand cmd = conn.CreateCommand();
+
+            // Build query based on parameter eventOption
+            query = @"SELECT * FROM Event";
+            switch (eventOption)
+            {
+                case queryTimeOption.Past:
+                    query += @"";
+                    break;
+                case queryTimeOption.Present:
+                    query += @"";
+                    break;
+                case queryTimeOption.Future:
+                    query += @"";
+                    break;
+                case queryTimeOption.All:
+                    // No condition to apply
+                    break;
+                default:
+                    break;
+            }
+
+            // Assign query to command
+            cmd.CommandText = query;
+            conn.Open();
+
+            EventList events = new EventList();
+
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
+                while (dr.Read())
+                {
+                    Event eventRecord = new Event();
+                    
+                    eventRecord.id = (int)dr["id"];
+                    eventRecord.name = (String)dr["name"];
+                    eventRecord.description = (String)dr["description"];
+                    eventRecord.session = (DateTime)dr["date_time"];
+                    eventRecord.url = (String)dr["url"];
+                    eventRecord.location = ((int)dr["venue_id"]).ToString(); // Have this from a view
+                    eventRecord.dateCreated = (DateTime)dr["date_created"];
+
+                    events.eventList.Add(eventRecord);
+                }
+            }
+
+            #region "Commented Stuff"
+            //Event testEvent2 = new Event();
+            //testEvent2.name = "Test Event 2";
+            //testEvent2.description = "Second event";
+            //testEvent2.session = DateTime.UtcNow;
+
+            //Event testEvent3 = new Event();
+            //testEvent3.name = "Test Event 3";
+            //testEvent3.description = "Third event";
+            //testEvent3.session = DateTime.UtcNow;
+
+           
+            //events.eventList.Add(testEvent1);
+            //events.eventList.Add(testEvent2);
+            //events.eventList.Add(testEvent3);
+            #endregion
+
+            return events;
+        }
+
+        [WebMethod]
+        public EventList listEventsByContact(String eventId, queryTimeOption eventOption)
+        {
+            Event testEvent1 = new Event();
+            testEvent1.name = "Test Event";
+            testEvent1.description = "First event";
+            testEvent1.session = DateTime.UtcNow;
+
+            Event testEvent2 = new Event();
+            testEvent2.name = "Test Event 2";
+            testEvent2.description = "Second event";
+            testEvent2.session = DateTime.UtcNow;
+
+            Event testEvent3 = new Event();
+            testEvent3.name = "Test Event 3";
+            testEvent3.description = "Third event";
+            testEvent3.session = DateTime.UtcNow;
+
+            EventList events = new EventList();
+            events.eventList.Add(testEvent1);
+            events.eventList.Add(testEvent2);
+            events.eventList.Add(testEvent3);
+
+            return events;
+        }
+
+        [WebMethod]
+        public Event getEventById(string eventId)
+        {
+            return new Event();
+        }
+
+        [WebMethod]
+        public EventList searchEventByName(String eventId, queryTimeOption eventOption)
+        {
+            Event testEvent1 = new Event();
+            testEvent1.name = "Test Event";
+            testEvent1.description = "First event";
+            testEvent1.session = DateTime.UtcNow;
+
+            Event testEvent2 = new Event();
+            testEvent2.name = "Test Event 2";
+            testEvent2.description = "Second event";
+            testEvent2.session = DateTime.UtcNow;
+
+            Event testEvent3 = new Event();
+            testEvent3.name = "Test Event 3";
+            testEvent3.description = "Third event";
+            testEvent3.session = DateTime.UtcNow;
+
+            EventList events = new EventList();
+            events.eventList.Add(testEvent1);
+            events.eventList.Add(testEvent2);
+            events.eventList.Add(testEvent3);
+
+            return events;
+        }
+        #endregion
+
+        #region "Contacts"
+        [WebMethod]
+        public ContactList listContactsMet(string userId)
+        {
+            Contact myContact = new Contact();
+            myContact.id = new Guid("C0380753-9DEF-4BB8-8C81-B3E3690339C7");
+            myContact.name = "Delcio Gomes";
+            myContact.organisation = "British Red Cross";
+            myContact.jobTitle = "Development DBA";
+            myContact.dateOfBirth = DateTime.UtcNow;
+            myContact.notes = "Likes computer games";
+
+            Contact mySon = new Contact();
+            mySon.id = new Guid("5ED87881-56F1-41CF-A943-D085E22840B1");
+            mySon.name = "Daniel Gomes";
+            mySon.organisation = "Gomes Family";
+            mySon.jobTitle = "Fun R US";
+            mySon.dateOfBirth = DateTime.UtcNow;
+            mySon.notes = "Likes computer games and chocolate";
+
+            Contact myDaughter = new Contact();
+            myDaughter.id = new Guid("E0F47E65-E7F6-4D5F-8777-F84770B51502");
+            myDaughter.name = "Gabriela Gomes";
+            myDaughter.organisation = "Small Explorers";
+            myDaughter.jobTitle = "Toy Ranger";
+            myDaughter.dateOfBirth = DateTime.UtcNow;
+            myDaughter.notes = "Eats everything";
+
+            ContactList contacts = new ContactList();
+            contacts.contactList.Add(myContact);
+            contacts.contactList.Add(mySon);
+            contacts.contactList.Add(myDaughter);
+
+            return contacts;
+        }
+
+        [WebMethod]
+        public ContactList listContactsInEvent(String eventId)
+        {
+            // List all contacts attending an event
+            Contact myContact = new Contact();
+            myContact.id = new Guid("C0380753-9DEF-4BB8-8C81-B3E3690339C7");
+            myContact.name = "Delcio Gomes";
+            myContact.organisation = "British Red Cross";
+            myContact.jobTitle = "Development DBA";
+            myContact.dateOfBirth = DateTime.UtcNow;
+            myContact.notes = "Likes computer games";
+
+            Contact mySon = new Contact();
+            mySon.id = new Guid("5ED87881-56F1-41CF-A943-D085E22840B1");
+            mySon.name = "Daniel Gomes";
+            mySon.organisation = "Gomes Family";
+            mySon.jobTitle = "Fun R US";
+            mySon.dateOfBirth = DateTime.UtcNow;
+            mySon.notes = "Likes computer games and chocolate";
+
+            Contact myDaughter = new Contact();
+            myDaughter.id = new Guid("E0F47E65-E7F6-4D5F-8777-F84770B51502");
+            myDaughter.name = "Gabriela Gomes";
+            myDaughter.organisation = "Small Explorers";
+            myDaughter.jobTitle = "Toy Ranger";
+            myDaughter.dateOfBirth = DateTime.UtcNow;
+            myDaughter.notes = "Eats everything";
+
+            ContactList contacts = new ContactList();
+            contacts.contactList.Add(myContact);
+            contacts.contactList.Add(mySon);
+            contacts.contactList.Add(myDaughter);
+
+            return contacts;
+        }
+
+        [WebMethod]
+        public Contact getContactById(String contacId)
+        {
+            // Query for contact Id
+            Contact myContact = new Contact();
+            myContact.id = new Guid("C0380753-9DEF-4BB8-8C81-B3E3690339C7");
+            myContact.name = "Delcio Gomes";
+            myContact.organisation = "British Red Cross";
+            myContact.jobTitle = "Development DBA";
+            myContact.dateOfBirth = DateTime.UtcNow;
+            myContact.notes = "Likes computer games";
+
+            return myContact;
+        }
+
+        [WebMethod]
+        public ContactList searchContactByName(String name)
+        {
+            // List all contacts with name like %name%
+            Contact myContact = new Contact();
+            myContact.id = new Guid("C0380753-9DEF-4BB8-8C81-B3E3690339C7");
+            myContact.name = "Delcio Gomes";
+            myContact.organisation = "British Red Cross";
+            myContact.jobTitle = "Development DBA";
+            myContact.dateOfBirth = DateTime.UtcNow;
+            myContact.notes = "Likes computer games";
+
+            Contact mySon = new Contact();
+            mySon.id = new Guid("5ED87881-56F1-41CF-A943-D085E22840B1");
+            mySon.name = "Daniel Gomes";
+            mySon.organisation = "Gomes Family";
+            mySon.jobTitle = "Fun R US";
+            mySon.dateOfBirth = DateTime.UtcNow;
+            mySon.notes = "Likes computer games and chocolate";
+
+            Contact myDaughter = new Contact();
+            myDaughter.id = new Guid("E0F47E65-E7F6-4D5F-8777-F84770B51502");
+            myDaughter.name = "Gabriela Gomes";
+            myDaughter.organisation = "Small Explorers";
+            myDaughter.jobTitle = "Toy Ranger";
+            myDaughter.dateOfBirth = DateTime.UtcNow;
+            myDaughter.notes = "Eats everything";
+
+            ContactList contacts = new ContactList();
+            contacts.contactList.Add(myContact);
+            contacts.contactList.Add(mySon);
+            contacts.contactList.Add(myDaughter);
+
+            return contacts;
+        }
+
+        [WebMethod]
+        public bool toggleContactMet(String userId, String contactId)
+        {
+            // Will toggle the contact met status, is is active return true, else return false
+            return true;
+        }
+        #endregion
+    }
+}
